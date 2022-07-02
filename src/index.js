@@ -10,9 +10,11 @@ app.use(cors());
 const users = [];
 
 function checksExistsUserAccount(request, response, next) {
-  const { username } = request;
+  const { headers } = request;
 
-  const existentUser = users.find((user) => user.username === username);
+  const existentUser = users.find(
+    (user) => user.username === headers?.username
+  );
 
   if (!existentUser) {
     return response.status(404).json({
@@ -39,7 +41,7 @@ function checksCreateTodosUserAvailability(request, response, next) {
 
 function checksTodoExists(request, response, next) {
   const {
-    headers: { username },
+    headers,
     params: { id: todoId },
   } = request;
 
@@ -51,7 +53,7 @@ function checksTodoExists(request, response, next) {
     });
   }
 
-  const findedUser = users.find((user) => user.username === username);
+  const findedUser = users.find((user) => user.username === headers?.username);
 
   if (!findedUser) {
     return response.status(404).json({
@@ -74,17 +76,17 @@ function checksTodoExists(request, response, next) {
 }
 
 function findUserById(request, response, next) {
-  const {
-    headers: { username },
-  } = request;
+  const { params } = request;
 
-  const findedUser = users.find((user) => user.username === username);
+  const findedUser = users.find((user) => user.id === params.id);
 
   if (!findedUser) {
     return response.status(404).json({
       error: "User not exists",
     });
   }
+
+  request.user = findedUser;
 
   return next();
 }
